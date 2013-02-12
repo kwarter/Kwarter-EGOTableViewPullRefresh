@@ -30,26 +30,27 @@
 typedef enum{
 	EGOOPullRefreshPulling = 0,
 	EGOOPullRefreshNormal,
-	EGOOPullRefreshLoading,	
+	EGOOPullRefreshLoading,
 } EGOPullRefreshState;
 
 @protocol EGORefreshTableHeaderDelegate;
+
 @interface EGORefreshTableHeaderView : UIView {
 	
 	id _delegate;
 	EGOPullRefreshState _state;
-
+    
 	UILabel *_lastUpdatedLabel;
 	UILabel *_statusLabel;
 	CALayer *_arrowImage;
 	UIActivityIndicatorView *_activityView;
-	
-
 }
 
 @property(nonatomic,assign) id <EGORefreshTableHeaderDelegate> delegate;
 
-- (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor;
+- (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow
+          textColor:(UIColor *)textColor shadowOffset:(CGSize)shadowOffset shadowColor:(UIColor *)shadowColor
+    backgroundColor:(UIColor *)backgroundColor activityIndicatorStyle:(UIActivityIndicatorViewStyle)activityIndicatorStyle;
 
 - (void)refreshLastUpdatedDate;
 - (void)egoRefreshScrollViewDidScroll:(UIScrollView *)scrollView;
@@ -57,6 +58,7 @@ typedef enum{
 - (void)egoRefreshScrollViewDataSourceDidFinishedLoading:(UIScrollView *)scrollView;
 
 @end
+
 @protocol EGORefreshTableHeaderDelegate
 - (void)egoRefreshTableHeaderDidTriggerRefresh:(EGORefreshTableHeaderView*)view;
 - (BOOL)egoRefreshTableHeaderDataSourceIsLoading:(EGORefreshTableHeaderView*)view;
