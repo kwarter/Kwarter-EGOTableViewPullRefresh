@@ -44,12 +44,14 @@
 
 - (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow
           textColor:(UIColor *)textColor shadowOffset:(CGSize)shadowOffset shadowColor:(UIColor *)shadowColor
-    backgroundColor:(UIColor *)backgroundColor activityIndicatorStyle:(UIActivityIndicatorViewStyle)activityIndicatorStyle {
+    backgroundColor:(UIColor *)backgroundColor activityIndicatorStyle:(UIActivityIndicatorViewStyle)activityIndicatorStyle
+scrollViewContentInset:(UIEdgeInsets)contentInset {
     
     if((self = [super initWithFrame:frame])) {
 		
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		self.backgroundColor = BACKGROUND_COLOR;
+		self.backgroundColor = backgroundColor;
+        _contentInset = contentInset;
         
 		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 30.0f, self.frame.size.width, 20.0f)];
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -104,7 +106,8 @@
 - (id)initWithFrame:(CGRect)frame  {
     return [self initWithFrame:frame arrowImageName:ARROW_IMAGE_NAME
                      textColor:TEXT_COLOR shadowOffset:SHADOW_OFFSET shadowColor:SHADOW_COLOR
-               backgroundColor:BACKGROUND_COLOR activityIndicatorStyle:ACTIVITY_INDICATOR_STYLE];
+               backgroundColor:BACKGROUND_COLOR activityIndicatorStyle:ACTIVITY_INDICATOR_STYLE
+        scrollViewContentInset:UIEdgeInsetsZero];
 }
 
 #pragma mark -
@@ -182,7 +185,6 @@
 	_state = aState;
 }
 
-
 #pragma mark -
 #pragma mark ScrollView Methods
 
@@ -192,7 +194,7 @@
 		
 		CGFloat offset = MAX(scrollView.contentOffset.y * -1, 0);
 		offset = MIN(offset, 60);
-		scrollView.contentInset = UIEdgeInsetsMake(offset, 0.0f, 0.0f, 0.0f);
+		scrollView.contentInset = UIEdgeInsetsMake(offset + _contentInset.top, _contentInset.left, _contentInset.bottom, _contentInset.right);
 		
 	} else if (scrollView.isDragging) {
 		
@@ -207,8 +209,8 @@
 			[self setState:EGOOPullRefreshPulling];
 		}
 		
-		if (scrollView.contentInset.top != 0) {
-			scrollView.contentInset = UIEdgeInsetsZero;
+		if (scrollView.contentInset.top != _contentInset.top) {
+			scrollView.contentInset = _contentInset;
 		}
 		
 	}
@@ -231,7 +233,7 @@
 		[self setState:EGOOPullRefreshLoading];
 		[UIView beginAnimations:nil context:NULL];
 		[UIView setAnimationDuration:0.2];
-		scrollView.contentInset = UIEdgeInsetsMake(60.0f, 0.0f, 0.0f, 0.0f);
+        scrollView.contentInset = UIEdgeInsetsMake(60.0f + _contentInset.top, _contentInset.left, _contentInset.bottom, _contentInset.right);
 		[UIView commitAnimations];
 		
 	}
@@ -242,13 +244,12 @@
 	
 	[UIView beginAnimations:nil context:NULL];
 	[UIView setAnimationDuration:.3];
-	[scrollView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
+	[scrollView setContentInset:_contentInset];
 	[UIView commitAnimations];
 	
 	[self setState:EGOOPullRefreshNormal];
     
 }
-
 
 #pragma mark -
 #pragma mark Dealloc
@@ -262,6 +263,5 @@
 	_lastUpdatedLabel = nil;
     [super dealloc];
 }
-
 
 @end
