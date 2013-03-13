@@ -53,7 +53,7 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 		self.backgroundColor = backgroundColor;
         _contentInset = contentInset;
         
-		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 30.0f, self.frame.size.width, 20.0f)];
+		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 30.0f - _contentInset.top, self.frame.size.width, 20.0f)];
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont systemFontOfSize:12.0f];
 		label.textColor = textColor;
@@ -62,10 +62,10 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
 		[self addSubview:label];
-		_lastUpdatedLabel=label;
+		_lastUpdatedLabel = label;
 		[label release];
 		
-		label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 48.0f, self.frame.size.width, 20.0f)];
+		label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, frame.size.height - 48.0f- _contentInset.top, self.frame.size.width, 20.0f)];
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		label.font = [UIFont boldSystemFontOfSize:13.0f];
 		label.textColor = textColor;
@@ -74,11 +74,11 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 		label.backgroundColor = [UIColor clearColor];
 		label.textAlignment = UITextAlignmentCenter;
 		[self addSubview:label];
-		_statusLabel=label;
+		_statusLabel = label;
 		[label release];
 		
 		CALayer *layer = [CALayer layer];
-		layer.frame = CGRectMake(25.0f, frame.size.height - 65.0f, 30.0f, 55.0f);
+		layer.frame = CGRectMake(25.0f, frame.size.height - 65.0f - _contentInset.top, 30.0f, 55.0f);
 		layer.contentsGravity = kCAGravityResizeAspect;
 		layer.contents = (id)[UIImage imageNamed:arrow].CGImage;
 		
@@ -89,10 +89,10 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 #endif
 		
 		[[self layer] addSublayer:layer];
-		_arrowImage=layer;
+		_arrowImage = layer;
 		
 		UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:ACTIVITY_INDICATOR_STYLE];
-		view.frame = CGRectMake(25.0f, frame.size.height - 38.0f, 20.0f, 20.0f);
+		view.frame = CGRectMake(25.0f, frame.size.height - 38.0f - _contentInset.top, 20.0f, 20.0f);
 		[self addSubview:view];
 		_activityView = view;
 		[view release];
@@ -136,7 +136,7 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
     
 }
 
-- (void)setState:(EGOPullRefreshState)aState{
+- (void)setState:(EGOPullRefreshState)aState {
 	
 	switch (aState) {
 		case EGOOPullRefreshPulling:
@@ -203,9 +203,9 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 			_loading = [_delegate egoRefreshTableHeaderDataSourceIsLoading:self];
 		}
 		
-		if (_state == EGOOPullRefreshPulling && scrollView.contentOffset.y > -65.0f && scrollView.contentOffset.y < 0.0f && !_loading) {
+		if (_state == EGOOPullRefreshPulling && scrollView.contentOffset.y + _contentInset.top > -65.0f && scrollView.contentOffset.y < 0.0f && !_loading) {
 			[self setState:EGOOPullRefreshNormal];
-		} else if (_state == EGOOPullRefreshNormal && scrollView.contentOffset.y < -65.0f && !_loading) {
+		} else if (_state == EGOOPullRefreshNormal && scrollView.contentOffset.y + _contentInset.top < -65.0f && !_loading) {
 			[self setState:EGOOPullRefreshPulling];
 		}
 		
@@ -224,39 +224,32 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 		_loading = [_delegate egoRefreshTableHeaderDataSourceIsLoading:self];
 	}
 	
-	if (scrollView.contentOffset.y <= - 65.0f && !_loading) {
+	if (scrollView.contentOffset.y + _contentInset.top <= - 65.0f && !_loading) {
 		
 		if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidTriggerRefresh:)]) {
 			[_delegate egoRefreshTableHeaderDidTriggerRefresh:self];
 		}
 		
 		[self setState:EGOOPullRefreshLoading];
-		[UIView beginAnimations:nil context:NULL];
-		[UIView setAnimationDuration:0.2];
-        scrollView.contentInset = UIEdgeInsetsMake(60.0f + _contentInset.top, _contentInset.left, _contentInset.bottom, _contentInset.right);
-		[UIView commitAnimations];
-		
+        [UIView animateWithDuration:0.2 animations:^{
+            scrollView.contentInset = UIEdgeInsetsMake(60.0f + _contentInset.top, _contentInset.left, _contentInset.bottom, _contentInset.right);
+        }];
 	}
 	
 }
 
 - (void)egoRefreshScrollViewDataSourceDidFinishedLoading:(UIScrollView *)scrollView {
-	
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:.3];
-	[scrollView setContentInset:_contentInset];
-	[UIView commitAnimations];
-	
 	[self setState:EGOOPullRefreshNormal];
-    
+    [UIView animateWithDuration:.3 animations:^{
+        [scrollView setContentInset:_contentInset];
+    }];
 }
 
 #pragma mark -
 #pragma mark Dealloc
 
 - (void)dealloc {
-	
-	_delegate=nil;
+	_delegate = nil;
 	_activityView = nil;
 	_statusLabel = nil;
 	_arrowImage = nil;
