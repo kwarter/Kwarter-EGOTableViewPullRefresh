@@ -12,4 +12,5 @@ Pod::Spec.new do |s|
   s.resources    = 'EGOTableViewPullRefresh/Resources/*.png'
 
   s.framework    = 'QuartzCore'
+  s.dependency          'Kwarter-NUI'
 end

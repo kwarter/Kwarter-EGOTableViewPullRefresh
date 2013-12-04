@@ -25,6 +25,7 @@
 //
 
 #import "EGORefreshTableHeaderView.h"
+#import <UILabel+NUI.h>
 
 #define ARROW_IMAGE_NAME            @"blueArrow.png"
 #define TEXT_COLOR                  [UIColor colorWithRed:87.0/255.0 green:108.0/255.0 blue:137.0/255.0 alpha:1.0]
@@ -76,6 +77,9 @@ scrollViewContentInset:(UIEdgeInsets)contentInset {
 		[self addSubview:label];
 		_statusLabel = label;
 		[label release];
+		
+		_statusLabel.nuiClass = @"pullToRefreshLabel";
+		_lastUpdatedLabel.nuiClass = @"pullToRefreshLabel";
 		
 		CALayer *layer = [CALayer layer];
         layer.frame = CGRectMake(20.0f, frame.size.height - 60.0f - _contentInset.top, 50.0f, 60.0f);
